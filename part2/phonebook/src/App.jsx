@@ -1,9 +1,10 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from 'react'
 import Filter from './Filter'
 import PersonForm from './PersonForm'
 import Persons from './Persons'
 import personService from './services/persons'
-
+import Notification from './Notification'
 const App = () => {
   const [persons, setPersons] = useState([
   ])
@@ -11,6 +12,7 @@ const App = () => {
   const [newPhoneNumber, setNewPhoneNumber] = useState('')
   const [filterVal, setFilterVal] = useState('')
   const [showAll, setShowAll] = useState(true)
+  const [notificationMessage, setNotificationMessage] = useState({message:null, isError: false})
 
   useEffect(() => {
     personService.getAll()
@@ -21,7 +23,7 @@ const App = () => {
 
   const addPerson = (event) =>
   {
-    console.log(persons)
+    //console.log(persons)
     event.preventDefault()
     //console.log(persons.find((person)=> person.name === newName))
     const existingPerson = persons.find((person)=> person.name.toLocaleLowerCase() === newName.toLocaleLowerCase())
@@ -34,6 +36,21 @@ const App = () => {
           setPersons(persons.map(person => person.id !== returnedPerson.id ? person : returnedPerson))
           setNewName('')
           setNewPhoneNumber('')
+          setNotificationMessage({message: `Updated ${existingPerson.name}`, isError: false})
+          setTimeout(() => {
+            setNotificationMessage({message:null, isError: false})
+          }, 5000)
+        })
+        .catch(error => {
+          setNotificationMessage(
+           {message: `Information of '${existingPerson.name}' has already been removed from server`, isError:true}
+          )
+          setNewName('')
+          setNewPhoneNumber('')
+          setTimeout(() => {
+            setNotificationMessage({message:null, isError: false})
+          }, 5000)
+
         })
       }
       else{
@@ -47,6 +64,10 @@ const App = () => {
       setPersons(persons.concat(returnedPerson))
       setNewName('')
       setNewPhoneNumber('')
+      setNotificationMessage({message: `Added ${returnedPerson.name}`, isError: false})
+      setTimeout(() => {
+        setNotificationMessage({message:null, isError: false})
+      }, 5000)
     })
   }
   const deletePerson = (id) => {
@@ -80,6 +101,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification notification={notificationMessage}  />
       <h2>Phonebook</h2>
       <Filter filterVal={filterVal} handleSearchChange={handleSearchChange}/>
       
