@@ -1,0 +1,15 @@
+
+GET http://localhost:3001/api/blogs/
+
+
+################################
+
+POST http://localhost:3001/api/blogs HTTP/1.1
+content-type: application/json
+
+{
+    "title": "A good bood2",
+    "author": "Nami",
+    "url": "https://myBlog.com",
+    "likes": 5
+}
