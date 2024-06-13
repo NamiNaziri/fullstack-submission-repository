@@ -1,0 +1,51 @@
+
+GET http://localhost:3001/api/blogs/
+################################
+
+GET http://localhost:3001/api/users/
+################################
+
+POST http://localhost:3001/api/blogs HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5hbWkiLCJpZCI6IjY2NmI2ODQyMzZhZmZhNTk2NDVmNGJlZCIsImlhdCI6MTcxODMxNTA4MCwiZXhwIjoxNzE4MzE4NjgwfQ.an1E9t2rWMb8eL83aTfXJps_QeMRXcVW5HuWq9nF_SI
+
+{
+    "title": "book4",
+    "author": "Nami",
+    "url": "https://myBlog.com"
+}
+################################
+
+POST http://localhost:3001/api/login HTTP/1.1
+content-type: application/json
+
+{
+    "username": "nami",
+    "password": "12345678"
+}
+
+################################
+
+POST http://localhost:3001/api/login HTTP/1.1
+content-type: application/json
+
+{
+    "username": "root",
+    "password": "sekret"
+}
+
+####    
+POST http://localhost:3001/api/users/ HTTP/1.1
+content-type: application/json
+
+{
+    "username": "nami",
+    "name": "Nami Naziri",
+    "password": "12345678"
+}
+
+################################
+
+DELETE http://localhost:3001/api/blogs/666b2aa15cd087642635e063 HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY2NmIxZjA2YjJhMzU4Y2U5MWFiY2I4NSIsImlhdCI6MTcxODI5OTQzMSwiZXhwIjoxNzE4MzAzMDMxfQ.KjFYxf_xHINkUOWAPWf1VnYkf45HAJ_XP1Pt1FrfOxo
