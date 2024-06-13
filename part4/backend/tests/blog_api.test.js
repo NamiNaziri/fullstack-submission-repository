@@ -1,17 +1,25 @@
 const { test, after, beforeEach, describe } = require('node:test')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const helper = require('./test_helper')
 const api = supertest(app)
-
+const bcrypt = require('bcrypt')
 
   beforeEach(async () => {
-    await Blog.deleteMany({})
+    await User.deleteMany({});
+    await Blog.deleteMany({});
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'root', name: 'root', passwordHash })
+
+    await user.save()
 
     for (let blog of helper.initialBlogs) {
+        blog.user = user._id
         let blogObject = new Blog(blog)
         await blogObject.save()
       }
@@ -50,6 +58,30 @@ test('blogs have variable id and not _id', async () => {
         assert.strictEqual(blog._id, undefined)
       });
   })
+  
+
+  test('adding a blog fails with the proper status code 401 Unauthorized if a token is not provided', async () => {
+    const newBlog =     {
+        title: "Canonical string reduction",
+        author: "Edsger W. Dijkstra",
+        url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+        likes: 12,
+      }
+ 
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+  
+
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length )
+
+    const title = blogsAtEnd.map(n => n.title)
+
+    assert(!title.includes('Canonical string reduction'))
+  })
 
 test('a valid blog can be added ', async () => {
     const newBlog =     {
@@ -58,9 +90,12 @@ test('a valid blog can be added ', async () => {
         url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
         likes: 12,
       }
-  
+ 
+    const user = await helper.login(helper.rootUser)
+
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${user.token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -80,9 +115,11 @@ test('a valid blog can be added ', async () => {
         author: "Edsger W. Dijkstra",
         url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
       }
-  
+      const user = await helper.login(helper.rootUser)
+
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${user.token}`)
       .send(newBlog)
       .expect(201)
 
@@ -92,14 +129,16 @@ test('a valid blog can be added ', async () => {
     assert.strictEqual(likes[2], 0 )
   })
 
-  test('return 40 bad request if title or url missing', async () => {
+  test('return 400 bad request if title or url missing', async () => {
     const newBlogMissingTitle =     {
         author: "Edsger W. Dijkstra",
         url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
       }
+      const user = await helper.login(helper.rootUser)
   
     result = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${user.token}`)
       .send(newBlogMissingTitle)
       .expect(400)
       
@@ -110,6 +149,7 @@ test('a valid blog can be added ', async () => {
 
       await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${user.token}`)
       .send(newBlogMissingURL)
       .expect(400)
   })
@@ -119,9 +159,11 @@ test('a valid blog can be added ', async () => {
     test('succeeds with status code 204 if id is valid', async () => {
       const blogsAtStart = await helper.blogsInDb()
       const blogToDelete = blogsAtStart[0]
-
+      
+      const user = await helper.login(helper.rootUser)
       await api
         .delete(`/api/blogs/${blogToDelete.id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .expect(204)
 
       const blogsAtEnd = await helper.blogsInDb()
@@ -171,9 +213,9 @@ test('a valid blog can be added ', async () => {
         assert.strictEqual(likes[0], 15)
       })
   })
+
+  after(async () => {
+        await mongoose.connection.close()
+      })
 })
 
-
-after(async () => {
-  await mongoose.connection.close()
-})

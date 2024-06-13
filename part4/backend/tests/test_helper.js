@@ -1,6 +1,13 @@
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const supertest = require('supertest')
+const app = require('../app')
+const api = supertest(app)
 
-
+const rootUser ={
+  "username": "root",
+  "password": "sekret"
+}
 const initialBlogs = [
     {
         title: "React patterns",
@@ -19,6 +26,22 @@ const initialBlogs = [
     const blogs = await Blog.find({})
     return blogs.map(blog => blog.toJSON())
   }
-  module.exports = {
-    initialBlogs, blogsInDb
+
+  const usersInDb = async () => {
+    const users = await User.find({})
+    return users.map(u => u.toJSON())
   }
+
+  const login = async (user) => {
+    const loggedInUser = await api
+      .post('/api/login')
+      .send(user)
+      
+    return loggedInUser.body
+  }
+
+
+  module.exports = {
+    initialBlogs, blogsInDb, usersInDb, rootUser, login
+  }
+
