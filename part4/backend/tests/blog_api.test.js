@@ -1,4 +1,4 @@
-const { test, after, beforeEach } = require('node:test')
+const { test, after, beforeEach, describe } = require('node:test')
 const Blog = require('../models/blog')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
@@ -17,7 +17,7 @@ const api = supertest(app)
       }
   })
 
-
+  describe('when there is initially some blogs saved', () => {
 test('blogs are returned as json', async () => {
   await api
     .get('/api/blogs')
@@ -113,6 +113,66 @@ test('a valid blog can be added ', async () => {
       .send(newBlogMissingURL)
       .expect(400)
   })
+
+
+  describe('deletion of a blog', () => {
+    test('succeeds with status code 204 if id is valid', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToDelete = blogsAtStart[0]
+
+      await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+      const blogsAtEnd = await helper.blogsInDb()
+
+      assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
+
+      const titles = blogsAtEnd.map(r => r.title)
+      assert(!titles.includes(blogToDelete.title))
+    })
+  })
+
+
+  describe('update of a blog', () => {
+    test('Adds 5 to the first blogs likes', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      let blogToUpdate = blogsAtStart[0]
+      blogToUpdate.likes += 5
+      
+      await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(blogToUpdate)
+        .expect(200)
+
+      const blogsAtEnd = await helper.blogsInDb()
+
+      assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
+
+      const likes = blogsAtEnd.map(r => r.likes)
+      assert.strictEqual(likes[0], helper.initialBlogs[0].likes + 5)
+    })
+
+    test('update the likes to 15 for the first blog', async () => {
+        const blogsAtStart = await helper.blogsInDb()
+        let blogToUpdate = blogsAtStart[0]
+        blogToUpdate.likes = 15
+        
+        await api
+          .put(`/api/blogs/${blogToUpdate.id}`)
+          .send(blogToUpdate)
+          .expect(200)
+  
+        const blogsAtEnd = await helper.blogsInDb()
+  
+        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
+  
+        const likes = blogsAtEnd.map(r => r.likes)
+        assert.strictEqual(likes[0], 15)
+      })
+  })
+})
+
 
 after(async () => {
   await mongoose.connection.close()
