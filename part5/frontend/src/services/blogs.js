@@ -23,7 +23,7 @@ const create = async newObject => {
 }
 
 
-const update = async(newObject) => {
+const updateLike = async(newObject) => {
   const config = {
     headers: { Authorization: token },
   }
@@ -40,4 +40,4 @@ const deleteBlog = async(deleteObject) => {
 }
 
 
-export default { getAll, create, update, setToken, deleteBlog }
+export default { getAll, create, updateLike, setToken, deleteBlog }

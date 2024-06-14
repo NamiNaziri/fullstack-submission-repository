@@ -3,6 +3,7 @@ module.exports = {
   env: {
     browser: true,
     es2020: true,
+    "vitest-globals/env": true
   },
   extends: [
     'eslint:recommended',
@@ -18,10 +19,6 @@ module.exports = {
     "indent": [
         "error",
         2  
-    ],
-    "linebreak-style": [
-        "error",
-        "unix"
     ],
     "quotes": [
         "error",

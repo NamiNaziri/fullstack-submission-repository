@@ -73,7 +73,8 @@ const App = () => {
     try {
       blogFormRef.current.toggleVisibility()
       const createBlog = await blogService.create(blog)
-      setBlogs(blogs.concat(blog).sort((a, b) =>  b.likes - a.likes))
+      console.log(createBlog)
+      setBlogs(blogs.concat(createBlog).sort((a, b) =>  b.likes - a.likes))
       setNotificationMessage({ message:`A new blog "${createBlog.title}" by "${createBlog.author}" added`, isError: false })
       setTimeout(() => {
         setNotificationMessage({ message:null, isError: false })
@@ -89,7 +90,9 @@ const App = () => {
   }
 
   const updateBlogLikes = async (blog) => {
-    const updateBlog = await blogService.update(blog)
+    console.log(blog)
+    const updateBlog = await blogService.updateLike(blog)
+    
     setBlogs(blogs.map(blog => blog.id !== updateBlog.id ? blog : updateBlog).sort((a, b) =>  b.likes - a.likes))
   }
 
