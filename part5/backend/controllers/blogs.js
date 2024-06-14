@@ -51,10 +51,12 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   })
 
 
-  blogsRouter.put('/:id', async(request, response) => {
+  blogsRouter.put('/:id',middleware.userExtractor, async(request, response) => {
     const body = request.body
+    const user = request.user
 
     const blog =    { 
+      user: user.id,
       title: body.title,
       author: body.author,
       url: body.url,

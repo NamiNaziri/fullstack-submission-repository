@@ -44,8 +44,31 @@ content-type: application/json
     "password": "12345678"
 }
 
+####    
+POST http://localhost:3001/api/users/ HTTP/1.1
+content-type: application/json
+
+{
+    "username": "root",
+    "name": "root",
+    "password": "root"
+}
 ################################
 
 DELETE http://localhost:3001/api/blogs/666b2aa15cd087642635e063 HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY2NmIxZjA2YjJhMzU4Y2U5MWFiY2I4NSIsImlhdCI6MTcxODI5OTQzMSwiZXhwIjoxNzE4MzAzMDMxfQ.KjFYxf_xHINkUOWAPWf1VnYkf45HAJ_XP1Pt1FrfOxo
+
+
+################################
+
+PUT http://localhost:3001/api/blogs/666b685736affa59645f4bf2 HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5hbWkiLCJpZCI6IjY2NmI2ODQyMzZhZmZhNTk2NDVmNGJlZCIsImlhdCI6MTcxODMzNjg4OCwiZXhwIjoxNzE4MzQwNDg4fQ.0BntkYvI57jRQQeB9er38IMEkNv8Z9DOhAHfewxPEmA
+
+{
+    "title": "book3",
+    "author": "Nami",
+    "url": "https://myBlog.com",
+    "likes": 5
+  }

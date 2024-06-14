@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef  } from 'react'
 import Blog from './components/Blog'
 import Login from './components/Login'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import NewBlogForm from './components/NewBlogForm'
@@ -14,7 +15,8 @@ const App = () => {
   const [password, setPassword] = useState('') 
   const [user, setUser] = useState(null)
   const [notificationMessage, setNotificationMessage] = useState({message:null, isError: false})
-  const [newBlog, setNewBlog] = useState({title:"", author:"", url:""})
+  
+  const blogFormRef = useRef()
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -27,7 +29,11 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs )
+      {
+        setBlogs( blogs.sort((a, b) =>  b.likes - a.likes) )
+      
+    
+    }
     )   
   }, [])
 
@@ -63,29 +69,34 @@ const App = () => {
 
   }
 
-  const HandleCreateBlog = async(event) => {
-    event.preventDefault()
+  const CreateBlog = async (blog) => {
     try {
-      const blog = await blogService.create(newBlog)
-      setBlogs(blogs.concat(blog))
-      setNewBlog({title:"", author:"", url:""})
-      setNotificationMessage({message:`A new blog "${blog.title}" by "${blog.author}" added`, isError: false})
+      blogFormRef.current.toggleVisibility()
+      const createBlog = await blogService.create(blog)
+      setBlogs(blogs.concat(blog).sort((a, b) =>  b.likes - a.likes))
+      setNotificationMessage({message:`A new blog "${createBlog.title}" by "${createBlog.author}" added`, isError: false})
       setTimeout(() => {
         setNotificationMessage({message:null, isError: false})
       }, 5000)
     } 
     catch (e) {
-      //setNewBlog({title:"", author:"", url:""})
       console.log(e)
       setNotificationMessage({message: e.response.data.error, isError: true})
       setTimeout(() => {
         setNotificationMessage({message:null, isError: false})
       }, 5000)
-
     }
   }
 
+  const updateBlogLikes = async (blog) => {
+    const updateBlog = await blogService.update(blog)
+    setBlogs(blogs.map(blog => blog.id !== updateBlog.id ? blog : updateBlog).sort((a, b) =>  b.likes - a.likes))
+  }
 
+  const deleteBlog = async (blog) => {
+     await blogService.deleteBlog(blog)
+    setBlogs(blogs.filter(b => b.id !== blog.id).sort((a, b) =>  b.likes - a.likes))
+  }
 
   const loginForm =  () => (
   <>
@@ -105,10 +116,11 @@ const App = () => {
     <p>{`${user.name} logged in`}</p>
     <button onClick={handleLogout}> Logout </button>
 
-    <NewBlogForm blog={newBlog}setBlog={setNewBlog} HandleCreateBlog={HandleCreateBlog} ></NewBlogForm>
-    
+    <Togglable buttonLabel="new blog" ref={blogFormRef}>
+      <NewBlogForm CreateBlog={CreateBlog} ></NewBlogForm>
+    </Togglable>
     {blogs.map(blog =>
-      <Blog key={blog.id} blog={blog} />
+      <Blog key={blog.id} blog={blog} user={user} updateBlogLikes={updateBlogLikes} handleDelete={deleteBlog}/>
     )}
   </>)
 
