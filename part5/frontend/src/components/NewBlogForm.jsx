@@ -27,6 +27,7 @@ const NewBlogForm = ({ CreateBlog }) => {
             name="title"
             onChange={({ target }) => setNewBlog((prevState) => ({ ...prevState, title: target.value }))}
             id='title-input'
+            data-testid='title-input'
           />
         </div>
         <div>
@@ -37,6 +38,7 @@ const NewBlogForm = ({ CreateBlog }) => {
             name="author"
             onChange={({ target }) => setNewBlog((prevState) => ({ ...prevState, author: target.value }))}
             id='author-input'
+            data-testid='author-input'
           />
         </div>
         <div>
@@ -47,6 +49,7 @@ const NewBlogForm = ({ CreateBlog }) => {
             name="url"
             onChange={({ target }) => setNewBlog((prevState) => ({ ...prevState, url: target.value }))}
             id='url-input'
+            data-testid='url-input'
           />
         </div>
         <button type="submit">create</button>
