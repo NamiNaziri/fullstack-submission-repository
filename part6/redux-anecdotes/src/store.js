@@ -3,6 +3,7 @@ import filterReducer from './reducers/filterReducer'
 import notificationReducer from './reducers/notificationReducer'
 import { configureStore } from '@reduxjs/toolkit'
 
+
 const store = configureStore({
     reducer: {
       anecdote: anecdoteReducer,
@@ -11,5 +12,8 @@ const store = configureStore({
     }
   })
 
-
+  // anecdoteService.getAll().then(anecdotes =>
+  //   store.dispatch(setAnecdotes(anecdotes))
+  // )
+  
 export default store
